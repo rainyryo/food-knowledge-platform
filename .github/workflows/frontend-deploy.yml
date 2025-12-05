@@ -1,0 +1,60 @@
+name: Frontend Deploy to Azure Web App
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/frontend-deploy.yml'
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Node.js 18
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: 'frontend/package-lock.json'
+    
+    - name: Install dependencies
+      run: |
+        cd frontend
+        npm ci
+    
+    - name: Create production environment file
+      run: |
+        cd frontend
+        echo "VITE_API_URL=https://rg-unitech-webapp-backend.azurewebsites.net" > .env.production
+    
+    - name: Build frontend
+      run: |
+        cd frontend
+        npm run build
+    
+    - name: Verify build output
+      run: |
+        ls -la frontend/dist
+        echo "✅ Build completed successfully"
+    
+    - name: Deploy to Azure Web App
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: 'rg-unitech-webapp-frontend'
+        slot-name: 'production'
+        publish-profile: ${{ secrets.AZURE_WEBAPP_FRONTEND_PUBLISH_PROFILE }}
+        package: './frontend/dist'
+    
+    - name: Deployment notification
+      run: |
+        echo "✅ Frontend deployment completed successfully!"
+        echo "🔗 URL: https://rg-unitech-webapp-frontend.azurewebsites.net"
+
+

@@ -1,0 +1,57 @@
+name: Backend Deploy to Azure Web App
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend-deploy.yml'
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    
+    - name: Create and activate virtual environment
+      run: |
+        cd backend
+        python -m venv venv
+        source venv/bin/activate
+        python -m pip install --upgrade pip
+    
+    - name: Install dependencies
+      run: |
+        cd backend
+        source venv/bin/activate
+        pip install -r requirements.txt
+    
+    - name: Create deployment package
+      run: |
+        cd backend
+        # 本番環境に不要なファイルを除外
+        rm -rf venv __pycache__ *.db
+        cd ..
+    
+    - name: Deploy to Azure Web App
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: 'rg-unitech-webapp-backend'
+        slot-name: 'production'
+        publish-profile: ${{ secrets.AZURE_WEBAPP_BACKEND_PUBLISH_PROFILE }}
+        package: './backend'
+    
+    - name: Deployment notification
+      run: |
+        echo "✅ Backend deployment completed successfully!"
+        echo "🔗 URL: https://rg-unitech-webapp-backend.azurewebsites.net"
+
