@@ -126,6 +126,13 @@ def reindex_all_chunks():
             embedding = get_embedding(chunk.content)
 
             # インデックス用のドキュメントを作成
+            # DateTimeOffsetにはタイムゾーン情報が必要
+            if chunk.created_at:
+                # タイムゾーン情報を追加（UTCとして扱う）
+                created_at_str = chunk.created_at.isoformat() + "Z"
+            else:
+                created_at_str = datetime.now().isoformat() + "Z"
+
             doc = {
                 "id": str(chunk.id),
                 "content": chunk.content,
@@ -133,7 +140,7 @@ def reindex_all_chunks():
                 "document_id": str(chunk.document_id),
                 "chunk_index": chunk.chunk_index,
                 "metadata": "{}",  # デフォルト値
-                "created_at": chunk.created_at.isoformat() if chunk.created_at else datetime.now().isoformat(),
+                "created_at": created_at_str,
                 "content_vector": embedding
             }
 
