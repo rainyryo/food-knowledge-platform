@@ -92,6 +92,17 @@ index = SearchIndex(
 )
 
 try:
+    # 既存のインデックスを削除（存在する場合）
+    try:
+        print(f"既存のインデックス '{AZURE_SEARCH_INDEX_NAME}' を確認中...")
+        existing_index = index_client.get_index(AZURE_SEARCH_INDEX_NAME)
+        print(f"既存のインデックスが見つかりました。削除します...")
+        index_client.delete_index(AZURE_SEARCH_INDEX_NAME)
+        print(f"✅ 既存のインデックスを削除しました")
+    except Exception as e:
+        print(f"既存のインデックスは見つかりませんでした（新規作成）")
+
+    # 新しいインデックスを作成
     print(f"インデックス '{AZURE_SEARCH_INDEX_NAME}' を作成中...")
     result = index_client.create_or_update_index(index)
     print(f"✅ インデックス '{result.name}' を正常に作成しました")
