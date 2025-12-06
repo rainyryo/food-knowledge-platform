@@ -53,7 +53,14 @@ print("✅ すべての環境変数が設定されています")
 # データベース接続
 print(f"データベースに接続中... ({MYSQL_HOST})")
 DATABASE_URL = f"mysql+pymysql://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DATABASE}"
-engine = create_engine(DATABASE_URL)
+engine = create_engine(
+    DATABASE_URL,
+    connect_args={
+        "ssl": {
+            "ssl_mode": "REQUIRED"
+        }
+    }
+)
 Session = sessionmaker(bind=engine)
 session = Session()
 
