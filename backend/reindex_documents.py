@@ -97,7 +97,6 @@ def reindex_all_chunks():
             dc.id,
             dc.content,
             dc.chunk_index,
-            dc.metadata,
             dc.created_at,
             d.id as document_id,
             d.title
@@ -133,7 +132,7 @@ def reindex_all_chunks():
                 "title": chunk.title or "",
                 "document_id": str(chunk.document_id),
                 "chunk_index": chunk.chunk_index,
-                "metadata": chunk.metadata or "{}",
+                "metadata": "{}",  # デフォルト値
                 "created_at": chunk.created_at.isoformat() if chunk.created_at else datetime.now().isoformat(),
                 "content_vector": embedding
             }
