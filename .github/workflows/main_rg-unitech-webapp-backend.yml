@@ -51,19 +51,28 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: build
-    
+
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
           name: python-app
-          path: artifact
 
-      - name: Extract backend files
+      - name: List downloaded files
         run: |
-          ls -la artifact/
-          mv artifact/backend/* . || mv artifact/* .
+          echo "=== Current directory ==="
+          pwd
           ls -la
+          echo "=== Checking for backend directory ==="
+          if [ -d "backend" ]; then
+            echo "backend directory exists"
+            ls -la backend/
+            cd backend
+            pwd
+            ls -la
+          else
+            echo "No backend directory, files are in root"
+          fi
 
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v3
@@ -72,4 +81,4 @@ jobs:
           app-name: 'rg-unitech-webapp-backend'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_9F9CECABFB644016B3C53F07DDFC54D9 }}
-          package: .
+          package: backend
