@@ -99,7 +99,7 @@ def reindex_all_chunks():
             dc.chunk_index,
             dc.created_at,
             d.id as document_id,
-            d.title
+            d.filename as title
         FROM document_chunks dc
         JOIN documents d ON dc.document_id = d.id
         ORDER BY d.id, dc.chunk_index
