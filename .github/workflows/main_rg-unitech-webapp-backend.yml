@@ -65,3 +65,4 @@ jobs:
           app-name: 'rg-unitech-webapp-backend'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_9F9CECABFB644016B3C53F07DDFC54D9 }}
+          package: .
