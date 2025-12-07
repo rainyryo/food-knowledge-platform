@@ -344,19 +344,28 @@ def process_document_task(document_id: int, content: bytes):
                 )
                 db.add(chunk_record)
 
-                # Prepare search document
-                search_doc = {
-                    "id": f"{doc.id}_{i}",
-                    "document_id": doc.id,
-                    "content": chunk,
-                    "filename": doc.original_filename,
+                # Prepare search document (matching actual index schema)
+                from datetime import datetime, timezone
+                import json
+
+                # Prepare metadata JSON with additional fields
+                metadata_dict = {
                     "application": doc.application,
                     "issue": doc.issue,
                     "ingredient": doc.ingredient,
                     "customer": doc.customer,
                     "trial_id": doc.trial_id,
-                    "sheet_name": chunk_record.sheet_name,
+                    "sheet_name": chunk_record.sheet_name
+                }
+
+                search_doc = {
+                    "id": f"{doc.id}_{i}",
+                    "document_id": str(doc.id),  # Convert to string to match schema
+                    "content": chunk,
+                    "title": doc.original_filename,  # Use "title" field instead of "filename"
                     "chunk_index": i,
+                    "metadata": json.dumps(metadata_dict, ensure_ascii=False),  # Store additional fields as JSON
+                    "created_at": datetime.now(timezone.utc).isoformat(),
                     "content_vector": embedding
                 }
                 search_docs.append(search_doc)

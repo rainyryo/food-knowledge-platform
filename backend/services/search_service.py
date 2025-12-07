@@ -115,15 +115,15 @@ class SearchService:
         context_parts = []
 
         for i, result in enumerate(search_results[:5], 1):  # Top 5 for context
-            # Get document info
-            doc = db.query(Document).filter(Document.id == result["document_id"]).first()
+            # Get document info from MySQL (source of truth for metadata)
+            doc = db.query(Document).filter(Document.id == int(result["document_id"])).first()
 
             context = f"""
 --- 案件 {i} ---
 ファイル名: {result['filename']}
-アプリケーション: {result.get('application', '不明')}
-課題: {result.get('issue', '不明')}
-使用原料: {result.get('ingredient', '不明')}
+アプリケーション: {doc.application if doc and doc.application else '不明'}
+課題: {doc.issue if doc and doc.issue else '不明'}
+使用原料: {doc.ingredient if doc and doc.ingredient else '不明'}
 関連度スコア: {result['score']:.2f}
 
 内容:
@@ -142,13 +142,13 @@ class SearchService:
         formatted = []
 
         for result in search_results:
-            # Get full document info
-            doc = db.query(Document).filter(Document.id == result["document_id"]).first()
-            
+            # Get full document info from MySQL (source of truth for metadata)
+            doc = db.query(Document).filter(Document.id == int(result["document_id"])).first()
+
             # Skip documents that are not successfully processed
             if not doc or doc.status != "completed":
                 continue
-            
+
             # Skip documents without blob_url (upload failed)
             if not doc.blob_url:
                 continue
@@ -157,11 +157,11 @@ class SearchService:
                 "id": result["id"],
                 "document_id": result["document_id"],
                 "filename": result["filename"],
-                "application": result.get("application"),
-                "issue": result.get("issue"),
-                "ingredient": result.get("ingredient"),
-                "customer": result.get("customer"),
-                "trial_id": result.get("trial_id"),
+                "application": doc.application,  # Get from MySQL
+                "issue": doc.issue,              # Get from MySQL
+                "ingredient": doc.ingredient,    # Get from MySQL
+                "customer": doc.customer,        # Get from MySQL
+                "trial_id": doc.trial_id,        # Get from MySQL
                 "sheet_name": result.get("sheet_name"),
                 "content_preview": result["content"][:300] + "..." if len(result["content"]) > 300 else result["content"],
                 "score": round(result["score"], 3),
