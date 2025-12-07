@@ -357,7 +357,7 @@ def process_document_task(document_id: int, content: bytes):
                     "trial_id": doc.trial_id,
                     "sheet_name": chunk_record.sheet_name,
                     "chunk_index": i,
-                    "embedding": embedding
+                    "content_vector": embedding
                 }
                 search_docs.append(search_doc)
 

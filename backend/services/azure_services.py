@@ -117,7 +117,7 @@ class AzureSearchService:
             SearchField(name="sheet_name", type=SearchFieldDataType.String, searchable=True, filterable=True),
             SearchField(name="chunk_index", type=SearchFieldDataType.Int32),
             SearchField(
-                name="embedding",
+                name="content_vector",
                 type=SearchFieldDataType.Collection(SearchFieldDataType.Single),
                 searchable=True,
                 vector_search_dimensions=1536,
@@ -183,7 +183,7 @@ class AzureSearchService:
         vector_query = VectorizedQuery(
             vector=embedding,
             k_nearest_neighbors=top_k,
-            fields="embedding"
+            fields="content_vector"
         )
 
         results = self.search_client.search(
