@@ -189,12 +189,11 @@ class AzureSearchService:
         results = self.search_client.search(
             search_text=query,
             vector_queries=[vector_query],
-            select=["id", "document_id", "content", "filename", "application",
-                   "issue", "ingredient", "customer", "trial_id", "sheet_name", "chunk_index"],
+            select=["id", "document_id", "content", "title", "chunk_index", "metadata"],
             top=top_k,
             filter=filters,
             query_type="semantic",
-            semantic_configuration_name="semantic-config"
+            semantic_configuration_name="my-semantic-config"
         )
 
         search_results = []
@@ -203,13 +202,13 @@ class AzureSearchService:
                 "id": result["id"],
                 "document_id": result["document_id"],
                 "content": result["content"],
-                "filename": result["filename"],
-                "application": result.get("application"),
-                "issue": result.get("issue"),
-                "ingredient": result.get("ingredient"),
-                "customer": result.get("customer"),
-                "trial_id": result.get("trial_id"),
-                "sheet_name": result.get("sheet_name"),
+                "filename": result.get("title", ""),
+                "application": None,
+                "issue": None,
+                "ingredient": None,
+                "customer": None,
+                "trial_id": None,
+                "sheet_name": None,
                 "chunk_index": result.get("chunk_index"),
                 "score": result["@search.score"],
                 "reranker_score": result.get("@search.reranker_score")
