@@ -25,51 +25,51 @@ export default function Layout({ children, user, onLogout }: LayoutProps) {
       {/* Header */}
       <header className="bg-white shadow-sm border-b-4 border-unitec-yellow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+          <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center min-h-16 py-2 sm:py-0">
             {/* Logo */}
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 sm:space-x-4 mb-2 sm:mb-0">
               <div className="flex items-center">
-                <div className="text-2xl font-bold tracking-tight">
+                <div className="text-xl sm:text-2xl font-bold tracking-tight">
                   <span className="text-unitec-blue">UNITEC FOODS</span>
                 </div>
               </div>
-              <div className="h-8 w-px bg-unitec-blueGray"></div>
-              <h1 className="text-lg font-semibold text-unitec-darkGray">
+              <div className="hidden sm:block h-8 w-px bg-unitec-blueGray"></div>
+              <h1 className="text-sm sm:text-lg font-semibold text-unitec-darkGray">
                 食品開発ナレッジプラットフォーム
               </h1>
             </div>
 
             {/* Navigation */}
-            <nav className="flex items-center space-x-4">
+            <nav className="flex items-center space-x-2 sm:space-x-4">
               <Link
                 to="/"
-                className={`flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                className={`flex items-center px-2 sm:px-3 py-2 rounded-md text-xs sm:text-sm font-medium transition-colors ${
                   location.pathname === '/'
                     ? 'bg-unitec-blue text-white'
                     : 'text-gray-600 hover:bg-blue-50 hover:text-unitec-blue'
                 }`}
               >
-                <Search className="w-4 h-4 mr-2" />
-                検索
+                <Search className="w-4 h-4 sm:mr-2" />
+                <span className="hidden sm:inline">検索</span>
               </Link>
 
               {user.is_admin && (
                 <Link
                   to="/admin"
-                  className={`flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  className={`flex items-center px-2 sm:px-3 py-2 rounded-md text-xs sm:text-sm font-medium transition-colors ${
                     location.pathname === '/admin'
                       ? 'bg-unitec-blue text-white'
                       : 'text-gray-600 hover:bg-blue-50 hover:text-unitec-blue'
                   }`}
                 >
-                  <Settings className="w-4 h-4 mr-2" />
-                  管理
+                  <Settings className="w-4 h-4 sm:mr-2" />
+                  <span className="hidden sm:inline">管理</span>
                 </Link>
               )}
 
               {/* User Menu */}
-              <div className="flex items-center ml-4 pl-4 border-l">
-                <div className="flex items-center text-sm text-gray-600 mr-4">
+              <div className="flex items-center ml-2 sm:ml-4 pl-2 sm:pl-4 border-l">
+                <div className="hidden md:flex items-center text-sm text-gray-600 mr-2 sm:mr-4">
                   <User className="w-4 h-4 mr-1" />
                   <span className="mr-2">{user.full_name || user.username}</span>
                   {user.is_admin ? (
@@ -84,10 +84,10 @@ export default function Layout({ children, user, onLogout }: LayoutProps) {
                 </div>
                 <button
                   onClick={handleLogout}
-                  className="flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:bg-red-50 hover:text-red-600 transition-colors"
+                  className="flex items-center px-2 sm:px-3 py-2 rounded-md text-xs sm:text-sm font-medium text-gray-600 hover:bg-red-50 hover:text-red-600 transition-colors"
                 >
-                  <LogOut className="w-4 h-4 mr-2" />
-                  ログアウト
+                  <LogOut className="w-4 h-4 sm:mr-2" />
+                  <span className="hidden sm:inline">ログアウト</span>
                 </button>
               </div>
             </nav>

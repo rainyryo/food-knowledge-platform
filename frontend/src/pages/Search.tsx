@@ -154,7 +154,7 @@ export default function Search() {
             <p className="text-center text-sm mb-6">
               自然言語で質問を入力してください
             </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 max-w-lg px-4 sm:px-0">
               {[
                 'りんごプレザーブ耐熱性付与',
                 'ドーナツの吸油抑制',
@@ -164,7 +164,7 @@ export default function Search() {
                 <button
                   key={example}
                   onClick={() => setQuery(example)}
-                  className="px-4 py-2 text-sm bg-gray-100 hover:bg-blue-50 hover:text-unitec-blue hover:border-unitec-yellow border border-transparent rounded-lg text-left transition-all"
+                  className="px-3 sm:px-4 py-2 text-xs sm:text-sm bg-gray-100 hover:bg-blue-50 hover:text-unitec-blue hover:border-unitec-yellow border border-transparent rounded-lg text-left transition-all"
                 >
                   {example}
                 </button>
@@ -179,7 +179,7 @@ export default function Search() {
                 className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 <div
-                  className={`max-w-3xl rounded-lg p-4 ${
+                  className={`max-w-3xl w-full sm:w-auto rounded-lg p-3 sm:p-4 ${
                     message.type === 'user'
                       ? 'bg-unitec-blue text-white'
                       : 'bg-gray-100 text-gray-800'
@@ -203,9 +203,9 @@ export default function Search() {
                                 className="bg-white rounded border p-3 text-sm"
                               >
                                 <div className="flex items-start justify-between mb-2">
-                                  <div className="flex items-center">
-                                    <FileText className="w-4 h-4 mr-2 text-gray-400" />
-                                    <span className="font-medium truncate max-w-xs">
+                                  <div className="flex items-center min-w-0 flex-1">
+                                    <FileText className="w-4 h-4 mr-2 text-gray-400 flex-shrink-0" />
+                                    <span className="font-medium truncate text-sm sm:text-base">
                                       {result.filename}
                                     </span>
                                   </div>
@@ -327,13 +327,13 @@ export default function Search() {
 
       {/* Preview Modal */}
       {(previewUrl || previewFilename) && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-6xl h-[90vh] flex flex-col">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-6xl h-[95vh] sm:h-[90vh] flex flex-col">
             {/* Modal Header */}
-            <div className="flex items-center justify-between p-4 border-b">
-              <div className="flex items-center">
-                <FileText className="w-5 h-5 mr-2 text-unitec-blue" />
-                <h3 className="font-medium text-gray-900 truncate max-w-xl">
+            <div className="flex items-center justify-between p-3 sm:p-4 border-b">
+              <div className="flex items-center min-w-0 flex-1 mr-2">
+                <FileText className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-unitec-blue flex-shrink-0" />
+                <h3 className="font-medium text-sm sm:text-base text-gray-900 truncate">
                   {previewFilename}
                 </h3>
               </div>
@@ -394,16 +394,16 @@ export default function Search() {
             </div>
 
             {/* Modal Footer */}
-            <div className="p-4 border-t bg-gray-50">
+            <div className="p-3 sm:p-4 border-t bg-gray-50">
               {!previewError && (
-                <p className="text-xs text-gray-600 mb-3">
+                <p className="text-xs text-gray-600 mb-2 sm:mb-3 hidden sm:block">
                   ※プレビューが表示されない場合は、「新しいタブで開く」または「ダウンロード」をお試しください
                 </p>
               )}
-              <div className="flex justify-end gap-3">
+              <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3">
                 <button
                   onClick={closePreview}
-                  className="px-4 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
                 >
                   閉じる
                 </button>
@@ -413,14 +413,14 @@ export default function Search() {
                       href={previewUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="px-4 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                      className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-center text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
                     >
                       新しいタブで開く
                     </a>
                     <a
                       href={previewUrl}
                       download
-                      className="px-4 py-2 text-sm text-white bg-unitec-blue rounded-lg hover:bg-unitec-lightBlue transition-colors"
+                      className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-center text-white bg-unitec-blue rounded-lg hover:bg-unitec-lightBlue transition-colors"
                     >
                       ダウンロード
                     </a>
