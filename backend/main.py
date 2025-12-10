@@ -1,6 +1,7 @@
 import os
 import uuid
-from datetime import timedelta
+import json
+from datetime import timedelta, datetime, timezone
 from typing import Optional
 
 from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, File, Query, BackgroundTasks
@@ -345,9 +346,6 @@ def process_document_task(document_id: int, content: bytes):
                 db.add(chunk_record)
 
                 # Prepare search document (matching actual index schema)
-                from datetime import datetime, timezone
-                import json
-
                 # Prepare metadata JSON with additional fields
                 metadata_dict = {
                     "application": doc.application,
