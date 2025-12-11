@@ -26,13 +26,27 @@ from services.document_processor import DocumentProcessor
 from services.search_service import SearchService
 from services.azure_services import AzureSearchService, AzureBlobService, AzureOpenAIService
 
+# Application startup logging
+print("=" * 70)
+print("🚀 Starting Food Knowledge Platform Backend")
+print("=" * 70)
+print("📋 Loading settings...")
+
 settings = get_settings()
+
+print("✅ Settings loaded successfully")
+print(f"📍 Azure OpenAI Endpoint: {settings.azure_openai_endpoint}")
+print(f"📍 Azure Search Endpoint: {settings.azure_search_endpoint}")
+print(f"📍 MySQL Host: {settings.mysql_host}")
+print("=" * 70)
 
 app = FastAPI(
     title="食品開発ナレッジプラットフォーム",
     description="ユニテックフーズ向けRAG型ナレッジ検索システム",
     version="1.0.0"
 )
+
+print("✅ FastAPI application created")
 
 # CORS設定
 app.add_middleware(
@@ -43,17 +57,31 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+print("✅ CORS middleware configured")
+
 # Initialize services
+print("🔧 Initializing services...")
 doc_processor = DocumentProcessor()
+print("✅ DocumentProcessor initialized")
 search_service = SearchService()
+print("✅ SearchService initialized")
+print("=" * 70)
 
 
+# Temporarily disabled for debugging - startup_event
+# This will be re-enabled after identifying the root cause
 @app.on_event("startup")
 async def startup_event():
-    init_db()
-    # Create initial admin user
-    db = next(get_db())
-    create_initial_admin(db)
+    print("=" * 60)
+    print("🚀 Application startup event triggered")
+    print("=" * 60)
+    # Temporarily disabled to diagnose startup issues
+    # init_db()
+    # # Create initial admin user
+    # db = next(get_db())
+    # create_initial_admin(db)
+    print("⚠️ Database initialization is temporarily disabled for debugging")
+    print("=" * 60)
 
 
 # =============================================================================
