@@ -68,20 +68,70 @@ print("✅ SearchService initialized")
 print("=" * 70)
 
 
-# Temporarily disabled for debugging - startup_event
-# This will be re-enabled after identifying the root cause
 @app.on_event("startup")
 async def startup_event():
+    """
+    Application startup event with robust error handling
+    Ensures the application starts even if database initialization fails
+    """
     print("=" * 60)
     print("🚀 Application startup event triggered")
     print("=" * 60)
-    # Temporarily disabled to diagnose startup issues
-    # init_db()
-    # # Create initial admin user
-    # db = next(get_db())
-    # create_initial_admin(db)
-    print("⚠️ Database initialization is temporarily disabled for debugging")
-    print("=" * 60)
+
+    try:
+        print("📊 Initializing database...")
+        print(f"   MySQL Host: {settings.mysql_host}")
+        print(f"   Database: {settings.mysql_database}")
+
+        # Initialize database with timeout protection
+        import signal
+
+        def timeout_handler(signum, frame):
+            raise TimeoutError("Database initialization timeout")
+
+        # Set 30 second timeout for init_db
+        signal.signal(signal.SIGALRM, timeout_handler)
+        signal.alarm(30)
+
+        try:
+            init_db()
+            signal.alarm(0)  # Cancel alarm
+            print("✅ Database tables verified/created successfully")
+        except TimeoutError:
+            signal.alarm(0)
+            raise Exception("Database initialization timed out after 30 seconds")
+
+        # Create initial admin user
+        print("👤 Verifying initial admin user...")
+        db = next(get_db())
+        try:
+            create_initial_admin(db)
+            print("✅ Initial admin user verified/created successfully")
+        finally:
+            db.close()
+
+        print("=" * 60)
+        print("✅ Startup completed successfully")
+        print("=" * 60)
+
+    except Exception as e:
+        print("=" * 60)
+        print(f"❌ Startup error: {str(e)}")
+        print("=" * 60)
+        import traceback
+        traceback.print_exc()
+
+        print("\n⚠️  APPLICATION WILL CONTINUE DESPITE STARTUP ERROR")
+        print("⚠️  Database-dependent features may not work correctly")
+        print("\nPlease check:")
+        print("  1. MySQL server is running and accessible")
+        print("  2. Firewall rules allow Azure App Service IP addresses")
+        print("  3. Environment variables are correctly set:")
+        print(f"     - MYSQL_HOST: {settings.mysql_host}")
+        print(f"     - MYSQL_USER: {settings.mysql_user}")
+        print(f"     - MYSQL_DATABASE: {settings.mysql_database}")
+        print("  4. SSL/TLS configuration is correct")
+        print("=" * 60)
 
 
 # =============================================================================
