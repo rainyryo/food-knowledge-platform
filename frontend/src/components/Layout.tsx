@@ -54,22 +54,38 @@ export default function Layout({ children, user, onLogout }: LayoutProps) {
               </Link>
 
               {user.is_admin && (
-                <Link
-                  to="/admin"
-                  className={`flex items-center px-2 sm:px-3 py-2 rounded-md text-xs sm:text-sm font-medium transition-colors ${
-                    location.pathname === '/admin'
-                      ? 'bg-unitec-blue text-white'
-                      : 'text-gray-600 hover:bg-blue-50 hover:text-unitec-blue'
-                  }`}
-                >
-                  <Settings className="w-4 h-4 sm:mr-2" />
-                  <span className="hidden sm:inline">管理</span>
-                </Link>
+                <>
+                  <Link
+                    to="/admin"
+                    className={`flex items-center px-2 sm:px-3 py-2 rounded-md text-xs sm:text-sm font-medium transition-colors ${
+                      location.pathname === '/admin'
+                        ? 'bg-unitec-blue text-white'
+                        : 'text-gray-600 hover:bg-blue-50 hover:text-unitec-blue'
+                    }`}
+                  >
+                    <Settings className="w-4 h-4 sm:mr-2" />
+                    <span className="hidden sm:inline">管理</span>
+                  </Link>
+                  <Link
+                    to="/admin/users"
+                    className={`flex items-center px-2 sm:px-3 py-2 rounded-md text-xs sm:text-sm font-medium transition-colors ${
+                      location.pathname === '/admin/users'
+                        ? 'bg-unitec-blue text-white'
+                        : 'text-gray-600 hover:bg-blue-50 hover:text-unitec-blue'
+                    }`}
+                  >
+                    <User className="w-4 h-4 sm:mr-2" />
+                    <span className="hidden sm:inline">ユーザー</span>
+                  </Link>
+                </>
               )}
 
               {/* User Menu */}
               <div className="flex items-center ml-2 sm:ml-4 pl-2 sm:pl-4 border-l">
-                <div className="hidden md:flex items-center text-sm text-gray-600 mr-2 sm:mr-4">
+                <Link
+                  to="/profile"
+                  className="hidden md:flex items-center text-sm text-gray-600 hover:text-unitec-blue mr-2 sm:mr-4 transition-colors"
+                >
                   <User className="w-4 h-4 mr-1" />
                   <span className="mr-2">{user.full_name || user.username}</span>
                   {user.is_admin ? (
@@ -81,7 +97,7 @@ export default function Layout({ children, user, onLogout }: LayoutProps) {
                       ユーザー
                     </span>
                   )}
-                </div>
+                </Link>
                 <button
                   onClick={handleLogout}
                   className="flex items-center px-2 sm:px-3 py-2 rounded-md text-xs sm:text-sm font-medium text-gray-600 hover:bg-red-50 hover:text-red-600 transition-colors"

@@ -14,7 +14,8 @@ from config import get_settings
 from database import get_db, init_db
 from models import User, Document, DocumentChunk, SearchHistory
 from schemas import (
-    UserCreate, UserResponse, Token, SearchRequest, SearchResponse,
+    UserCreate, UserResponse, Token, ProfileUpdate, PasswordChange,
+    UserUpdate, UserListResponse, SearchRequest, SearchResponse,
     DocumentUploadResponse, DocumentResponse, DocumentListResponse,
     FacetsResponse, SearchHistoryItem, SystemStats
 )
@@ -28,16 +29,16 @@ from services.azure_services import AzureSearchService, AzureBlobService, AzureO
 
 # Application startup logging
 print("=" * 70)
-print("🚀 Starting Food Knowledge Platform Backend")
+print(">> Starting Food Knowledge Platform Backend")
 print("=" * 70)
-print("📋 Loading settings...")
+print(">> Loading settings...")
 
 settings = get_settings()
 
-print("✅ Settings loaded successfully")
-print(f"📍 Azure OpenAI Endpoint: {settings.azure_openai_endpoint}")
-print(f"📍 Azure Search Endpoint: {settings.azure_search_endpoint}")
-print(f"📍 MySQL Host: {settings.mysql_host}")
+print(">> Settings loaded successfully")
+print(f">> Azure OpenAI Endpoint: {settings.azure_openai_endpoint}")
+print(f">> Azure Search Endpoint: {settings.azure_search_endpoint}")
+print(f">> MySQL Host: {settings.mysql_host}")
 print("=" * 70)
 
 app = FastAPI(
@@ -46,7 +47,7 @@ app = FastAPI(
     version="1.0.0"
 )
 
-print("✅ FastAPI application created")
+print(">> FastAPI application created")
 
 # CORS設定
 app.add_middleware(
@@ -57,14 +58,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-print("✅ CORS middleware configured")
+print(">> CORS middleware configured")
 
 # Initialize services
-print("🔧 Initializing services...")
+print(">> Initializing services...")
 doc_processor = DocumentProcessor()
-print("✅ DocumentProcessor initialized")
+print(">> DocumentProcessor initialized")
 search_service = SearchService()
-print("✅ SearchService initialized")
+print(">> SearchService initialized")
 print("=" * 70)
 
 
@@ -75,11 +76,11 @@ async def startup_event():
     Ensures the application starts even if database initialization fails
     """
     print("=" * 60)
-    print("🚀 Application startup event triggered")
+    print(">> Application startup event triggered")
     print("=" * 60)
 
     try:
-        print("📊 Initializing database...")
+        print(">> Initializing database...")
         print(f"   MySQL Host: {settings.mysql_host}")
         print(f"   Database: {settings.mysql_database}")
 
@@ -96,33 +97,33 @@ async def startup_event():
         try:
             init_db()
             signal.alarm(0)  # Cancel alarm
-            print("✅ Database tables verified/created successfully")
+            print(">> Database tables verified/created successfully")
         except TimeoutError:
             signal.alarm(0)
             raise Exception("Database initialization timed out after 30 seconds")
 
         # Create initial admin user
-        print("👤 Verifying initial admin user...")
+        print(">> Verifying initial admin user...")
         db = next(get_db())
         try:
             create_initial_admin(db)
-            print("✅ Initial admin user verified/created successfully")
+            print(">> Initial admin user verified/created successfully")
         finally:
             db.close()
 
         print("=" * 60)
-        print("✅ Startup completed successfully")
+        print(">> Startup completed successfully")
         print("=" * 60)
 
     except Exception as e:
         print("=" * 60)
-        print(f"❌ Startup error: {str(e)}")
+        print(f">> Startup error: {str(e)}")
         print("=" * 60)
         import traceback
         traceback.print_exc()
 
-        print("\n⚠️  APPLICATION WILL CONTINUE DESPITE STARTUP ERROR")
-        print("⚠️  Database-dependent features may not work correctly")
+        print("\n>> WARNING: APPLICATION WILL CONTINUE DESPITE STARTUP ERROR")
+        print(">> WARNING: Database-dependent features may not work correctly")
         print("\nPlease check:")
         print("  1. MySQL server is running and accessible")
         print("  2. Firewall rules allow Azure App Service IP addresses")
@@ -185,6 +186,44 @@ async def login(
 async def get_me(current_user: User = Depends(get_current_active_user)):
     """現在のユーザー情報取得"""
     return current_user
+
+
+@app.put("/api/auth/profile", response_model=UserResponse)
+async def update_profile(
+    profile: ProfileUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    """プロフィール更新"""
+    if profile.email is not None:
+        current_user.email = profile.email
+    if profile.full_name is not None:
+        current_user.full_name = profile.full_name
+
+    db.commit()
+    db.refresh(current_user)
+    return current_user
+
+
+@app.put("/api/auth/password")
+async def change_password(
+    password_change: PasswordChange,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    """パスワード変更"""
+    # Verify current password
+    if not authenticate_user(db, current_user.username, password_change.current_password):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="現在のパスワードが正しくありません"
+        )
+
+    # Update password
+    current_user.hashed_password = get_password_hash(password_change.new_password)
+    db.commit()
+
+    return {"message": "パスワードを変更しました"}
 
 
 # =============================================================================
@@ -623,6 +662,71 @@ async def reindex_all(
     """全ドキュメント再インデックス"""
     # TODO: Implement full reindex
     return {"message": "再インデックスを開始しました"}
+
+
+@app.get("/api/admin/users", response_model=UserListResponse)
+async def get_users(
+    page: int = Query(1, ge=1),
+    page_size: int = Query(50, ge=1, le=100),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_admin_user)
+):
+    """ユーザー一覧取得（管理者のみ）"""
+    offset = (page - 1) * page_size
+    users = db.query(User).offset(offset).limit(page_size).all()
+    total = db.query(User).count()
+
+    return UserListResponse(users=users, total=total)
+
+
+@app.put("/api/admin/users/{user_id}", response_model=UserResponse)
+async def update_user(
+    user_id: int,
+    user_update: UserUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_admin_user)
+):
+    """ユーザー情報更新（管理者のみ）"""
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="ユーザーが見つかりません")
+
+    # Prevent admin from deactivating themselves
+    if user.id == current_user.id and user_update.is_active == False:
+        raise HTTPException(status_code=400, detail="自分自身を無効化することはできません")
+
+    if user_update.email is not None:
+        user.email = user_update.email
+    if user_update.full_name is not None:
+        user.full_name = user_update.full_name
+    if user_update.is_admin is not None:
+        user.is_admin = user_update.is_admin
+    if user_update.is_active is not None:
+        user.is_active = user_update.is_active
+
+    db.commit()
+    db.refresh(user)
+    return user
+
+
+@app.delete("/api/admin/users/{user_id}")
+async def delete_user(
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_admin_user)
+):
+    """ユーザー削除（管理者のみ）"""
+    if user_id == current_user.id:
+        raise HTTPException(status_code=400, detail="自分自身を削除することはできません")
+
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="ユーザーが見つかりません")
+
+    db.delete(user)
+    db.commit()
+
+    return {"message": "ユーザーを削除しました"}
 
 
 @app.post("/api/admin/create-index")

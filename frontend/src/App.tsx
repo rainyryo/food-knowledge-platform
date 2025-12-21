@@ -1,8 +1,11 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import Login from './pages/Login';
+import Register from './pages/Register';
 import Search from './pages/Search';
+import Profile from './pages/Profile';
 import Admin from './pages/Admin';
+import UserManagement from './pages/UserManagement';
 import Layout from './components/Layout';
 import { getMe } from './api';
 
@@ -50,6 +53,10 @@ function App() {
           element={user ? <Navigate to="/" /> : <Login onLogin={setUser} />}
         />
         <Route
+          path="/register"
+          element={user ? <Navigate to="/" /> : <Register />}
+        />
+        <Route
           path="/"
           element={
             user ? (
@@ -62,11 +69,35 @@ function App() {
           }
         />
         <Route
+          path="/profile"
+          element={
+            user ? (
+              <Layout user={user} onLogout={() => setUser(null)}>
+                <Profile user={user} onUpdate={setUser} />
+              </Layout>
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+        <Route
           path="/admin"
           element={
             user?.is_admin ? (
               <Layout user={user} onLogout={() => setUser(null)}>
                 <Admin />
+              </Layout>
+            ) : (
+              <Navigate to="/" />
+            )
+          }
+        />
+        <Route
+          path="/admin/users"
+          element={
+            user?.is_admin ? (
+              <Layout user={user} onLogout={() => setUser(null)}>
+                <UserManagement />
               </Layout>
             ) : (
               <Navigate to="/" />

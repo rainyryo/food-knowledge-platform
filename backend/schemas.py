@@ -38,6 +38,28 @@ class TokenData(BaseModel):
     username: Optional[str] = None
 
 
+class ProfileUpdate(BaseModel):
+    email: Optional[EmailStr] = None
+    full_name: Optional[str] = None
+
+
+class PasswordChange(BaseModel):
+    current_password: str
+    new_password: str
+
+
+class UserUpdate(BaseModel):
+    email: Optional[EmailStr] = None
+    full_name: Optional[str] = None
+    is_admin: Optional[bool] = None
+    is_active: Optional[bool] = None
+
+
+class UserListResponse(BaseModel):
+    users: List[UserResponse]
+    total: int
+
+
 # Search schemas
 class SearchRequest(BaseModel):
     query: str

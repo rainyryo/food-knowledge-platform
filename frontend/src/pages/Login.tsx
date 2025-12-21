@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { login } from '../api';
 
 interface LoginProps {
@@ -103,6 +104,15 @@ export default function Login({ onLogin }: LoginProps) {
             <p>初期アカウント</p>
             <p>admin / admin123</p>
             <p>user / user123</p>
+          </div>
+
+          <div className="text-center">
+            <Link
+              to="/register"
+              className="text-sm text-unitec-blue hover:text-unitec-lightBlue transition-colors"
+            >
+              新規ユーザー登録はこちら
+            </Link>
           </div>
         </form>
       </div>

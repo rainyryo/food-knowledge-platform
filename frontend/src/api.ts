@@ -48,6 +48,32 @@ export const getMe = async () => {
   return response.data;
 };
 
+export const register = async (username: string, email: string, password: string, fullName?: string) => {
+  const response = await api.post('/auth/register', {
+    username,
+    email,
+    password,
+    full_name: fullName,
+  });
+  return response.data;
+};
+
+export const updateProfile = async (email: string, fullName: string) => {
+  const response = await api.put('/auth/profile', {
+    email,
+    full_name: fullName,
+  });
+  return response.data;
+};
+
+export const changePassword = async (currentPassword: string, newPassword: string) => {
+  const response = await api.put('/auth/password', {
+    current_password: currentPassword,
+    new_password: newPassword,
+  });
+  return response.data;
+};
+
 // Search
 export const search = async (query: string, topK?: number, filters?: Record<string, string>) => {
   const response = await api.post('/search', { query, top_k: topK, filters });
@@ -106,6 +132,24 @@ export const getSystemStats = async () => {
 
 export const createSearchIndex = async () => {
   const response = await api.post('/admin/create-index');
+  return response.data;
+};
+
+// User Management (Admin only)
+export const getUsers = async (page?: number, pageSize?: number) => {
+  const response = await api.get('/admin/users', {
+    params: { page, page_size: pageSize },
+  });
+  return response.data;
+};
+
+export const updateUser = async (userId: number, data: { email?: string; full_name?: string; is_admin?: boolean; is_active?: boolean }) => {
+  const response = await api.put(`/admin/users/${userId}`, data);
+  return response.data;
+};
+
+export const deleteUser = async (userId: number) => {
+  const response = await api.delete(`/admin/users/${userId}`);
   return response.data;
 };
 
